@@ -13,6 +13,10 @@
 #include <efi.h>
 #include <efilib.h>
 
+/**
+ * @brief Graphics output service.
+ * Holds variables necesssary for using the UEFI graphics output service.
+ */
 typedef struct s_uefi_graphics_service {
 	EFI_HANDLE* handle_buffer;
 	UINTN handle_count;

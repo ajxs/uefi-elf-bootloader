@@ -23,6 +23,10 @@
 #define TARGET_SCREEN_HEIGHT    768
 #define TARGET_PIXEL_FORMAT     PixelBlueGreenRedReserved8BitPerColor
 
+/**
+ * Whether to draw a test pattern to video output to test the graphics output service.
+ */
+#define DRAW_TEST_SCREEN 0
 
 /**
  * @brief Allocates the memory map.
@@ -251,7 +255,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 			return status;
 		}
 
-		draw_test_screen(graphics_output_protocol);
+		#if DRAW_TEST_SCREEN != 0
+			draw_test_screen(graphics_output_protocol);
+		#endif
 	}
 
 	// Initialise the simple file system service.
@@ -276,7 +282,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		debug_print_line(L"Debug: Loading Kernel image\n");
 	#endif
 
-	status = load_kernel_image(root_file_system, L"\\lxos.img",
+	status = load_kernel_image(root_file_system, L"\\kernel.elf",
 		kernel_entry_point);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error loading Kernel image\n");

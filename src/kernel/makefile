@@ -1,3 +1,14 @@
+#####################################################################
+#  Copyright (c) 2019, AJXS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
+
 .POSIX:
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -11,14 +22,16 @@ SRC_DIR := src
 INCLUDE_DIRS := ${SRC_DIR}/include
 INCLUDE_FLAG := ${foreach d, ${INCLUDE_DIRS}, -I$d}
 
-CFLAGS := -std=gnu99    \
+CFLAGS :=               \
+	-std=gnu99            \
 	-ffreestanding        \
 	-O2                   \
 	-Wall                 \
 	-Wextra
 
-LDFLAGS := -ffreestanding    \
-	-O2                        \
+LDFLAGS :=          \
+	-ffreestanding    \
+	-O2               \
 	-nostdlib
 
 LIBS := -lgcc

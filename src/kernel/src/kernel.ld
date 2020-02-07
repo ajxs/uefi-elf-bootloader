@@ -9,39 +9,49 @@
  *     Anthony <ajxs [at] panoptic.online>
  */
 
-STACK_SIZE = 0x4000;
+/** The physical starting address of the kernel. */
+KERNEL_PHYS_START = 0x100000;
+/**
+ * The offset between the physical start and the start of the kernel's
+ * mapping in virtual memory.
+ */
+KERNEL_VMA_OFFSET = 0xC0000000;
+/** The size of the kernel stack. */
+KERNEL_STACK_SIZE = 0x4000;
 
 ENTRY (kernel_main)
 
 SECTIONS
 {
-	. = 0xC0100000;
-	_kernel_start = .;
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+	. = KERNEL_PHYS_START;
+	. += KERNEL_VMA_OFFSET;
+	kernel_start = .;
+
+	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
 	{
 		*(.text*)
 	}
 
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
 	{
 		*(.rodata*)
 	}
 
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
 	{
 		*(.data*)
 	}
 
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
 	{
 		*(COMMON)
 		*(.bss*)
 
     . = ALIGN (16);
     stack_bottom = .;
-    . += STACK_SIZE;
+    . += KERNEL_STACK_SIZE;
     stack_top = .;
 	}
 
-	_kernel_end = .;
+	kernel_end = .;
 }

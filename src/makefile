@@ -1,3 +1,14 @@
+#####################################################################
+#  Copyright (c) 2019, AJXS.
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Authors:
+#     Anthony <ajxs [at] panoptic.online>
+#####################################################################
+
 .POSIX:
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -13,7 +24,8 @@ BUILD_DIR         := ../build
 DISK_IMG          := ${BUILD_DIR}/kernel.img
 DISK_IMG_SIZE     := 2880
 
-QEMU_FLAGS := -bios OVMF.fd                                  \
+QEMU_FLAGS :=                                                \
+	-bios OVMF.fd                                              \
 	-drive if=none,id=uas-disk1,file=${DISK_IMG},format=raw    \
 	-device usb-storage,drive=uas-disk1                        \
 	-serial stdio                                              \

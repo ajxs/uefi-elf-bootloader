@@ -30,6 +30,7 @@ QEMU_FLAGS :=                                                \
 	-device usb-storage,drive=uas-disk1                        \
 	-serial stdio                                              \
 	-usb                                                       \
+	-net none                                                  \
 	-vga std
 
 .PHONY: all clean emu

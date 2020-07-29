@@ -11,12 +11,17 @@
 #include <stdint.h>
 #include <string.h>
 
+/** VGA Screen dimensions. */
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 
+/** The VGA row cursor. */
 static size_t vga_row;
+/** The VGA column cursor. */
 static size_t vga_column;
+/** The currently selected VGA color. */
 static uint8_t vga_color;
+/** Pointer to the machine's VGA buffer. */
 static uint16_t* vga_buffer;
 
 
@@ -69,30 +74,14 @@ void vga_set_color(uint8_t color)
 
 
 /**
- * @brief Places a VGA entry onto the screen.
- * Places an encoded VGA entry into a specified place in the buffer.
- * @param c        The character to place.
- * @param color    The color for the character entry.
- * @param x        The x coordinate for the entry.
- * @param y        The y coordinate for the entry.
- */
-static void vga_putentryat(char c,
-	uint8_t color,
-	size_t x,
-	size_t y)
-{
-	/** The index into the VGA buffer to place the entry at. */
-	const size_t index = y * VGA_WIDTH + x;
-	vga_buffer[index] = create_vga_entry(c, color);
-}
-
-
-/**
  * vga_putchar
  */
 void vga_putchar(char c)
 {
-	vga_putentryat(c, vga_color, vga_column, vga_row);
+	/** The index into the VGA buffer to place the entry at. */
+	const size_t index = vga_row * VGA_WIDTH + vga_column;
+	vga_buffer[index] = create_vga_entry(c, vga_color);
+
 	if(++vga_column == VGA_WIDTH) {
 		vga_column = 0;
 

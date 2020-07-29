@@ -49,7 +49,7 @@ EFI_STATUS close_graphic_output_service()
 	EFI_STATUS status = uefi_call_wrapper(gBS->FreePool, 1,
 		graphics_service.handle_buffer);
 	if(EFI_ERROR(status)) {
-		Print(L"Error: Error releasing GOP handle buffer: %s\n",
+		debug_print_line(L"Error: Error releasing GOP handle buffer: %s\n",
 			get_efi_error_message(status));
 	}
 
@@ -128,13 +128,13 @@ EFI_STATUS find_video_mode(IN EFI_GRAPHICS_OUTPUT_PROTOCOL* const protocol,
 	UINTN i = 0;
 	for(i = 0; i < protocol->Mode->MaxMode; i++) {
 		#ifdef DEBUG
-			Print(L"Debug: Testing video mode: '%llu'\n", i);
+			debug_print_line(L"Debug: Testing video mode: '%llu'\n", i);
 		#endif
 
 		status = uefi_call_wrapper(protocol->QueryMode, 4,
 			protocol, i, &size_of_mode_info, &mode_info);
 		if(EFI_ERROR(status)) {
-			Print(L"Error: Error querying video mode: %s\n",
+			debug_print_line(L"Error: Error querying video mode: %s\n",
 				get_efi_error_message(status));
 
 			return status;
@@ -145,7 +145,7 @@ EFI_STATUS find_video_mode(IN EFI_GRAPHICS_OUTPUT_PROTOCOL* const protocol,
 			mode_info->PixelFormat == target_pixel_format) {
 
 			#ifdef DEBUG
-				Print(L"Debug: Matched video mode: '%llu' for '%lu*%lu*%u'\n", i,
+				debug_print_line(L"Debug: Matched video mode: '%llu' for '%lu*%lu*%u'\n", i,
 					target_width, target_height, target_pixel_format);
 			#endif
 
@@ -167,7 +167,7 @@ EFI_STATUS init_graphics_output_service(void)
 	EFI_STATUS status;
 
 	#ifdef DEBUG
-		Print(L"Debug: Initialising Graphics Output Service\n");
+		debug_print_line(L"Debug: Initialising Graphics Output Service\n");
 	#endif
 
 	// Populate graphics service handle buffer.
@@ -175,14 +175,14 @@ EFI_STATUS init_graphics_output_service(void)
 		ByProtocol, &gEfiGraphicsOutputProtocolGuid, NULL,
 		&graphics_service.handle_count, &graphics_service.handle_buffer);
 	if(EFI_ERROR(status)) {
-		Print(L"Error: Error locating GOP handle buffer: %s\n",
+		debug_print_line(L"Error: Error locating GOP handle buffer: %s\n",
 			get_efi_error_message(status));
 
 		return status;
 	}
 
 	#ifdef DEBUG
-		Print(L"Debug: Located GOP handle buffer with %u handles\n",
+		debug_print_line(L"Debug: Located GOP handle buffer with %u handles\n",
 			graphics_service.handle_count);
 	#endif
 
@@ -213,7 +213,7 @@ EFI_STATUS set_graphics_mode(IN EFI_GRAPHICS_OUTPUT_PROTOCOL* const protocol,
 	status = uefi_call_wrapper(protocol->SetMode, 2,
 		protocol, graphics_mode_num);
 	if(EFI_ERROR(status)) {
-		Print(L"Error: Error setting graphics mode: %s\n",
+		debug_print_line(L"Error: Error setting graphics mode: %s\n",
 			get_efi_error_message(status));
 
 		return status;

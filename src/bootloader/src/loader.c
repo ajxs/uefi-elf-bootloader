@@ -46,8 +46,8 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 	status = uefi_call_wrapper(kernel_img_file->SetPosition, 2,
 		kernel_img_file, segment_file_offset);
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error setting file pointer position to ");
-		debug_print_line(L"segment offset: %s\n", get_efi_error_message(status));
+		debug_print_line(L"Error: Error setting file pointer position to "
+			L"segment offset: %s\n", get_efi_error_message(status));
 
 		return status;
 	}
@@ -107,7 +107,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 			segment_virtual_address, program_data, segment_file_size);
 		if(EFI_ERROR(status)) {
 			debug_print_line(L"Error: Error copying program section "
-				"into memory: %s\n", get_efi_error_message(status));
+				L"into memory: %s\n", get_efi_error_message(status));
 
 			return status;
 		}

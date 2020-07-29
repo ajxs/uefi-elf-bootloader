@@ -50,7 +50,7 @@ uint8_t create_vga_color_entry(enum vga_color fg,
  * @param color    The color to encode into the entry.
  * @retrn          The encoded VGA entry.
  */
-inline uint16_t create_vga_entry(unsigned char uc,
+uint16_t create_vga_entry(unsigned char uc,
 	uint8_t color);
 
 /**

@@ -41,6 +41,7 @@ AS_SOURCES :=
 
 C_SOURCES  := ${SRC_DIR}/kernel.c    \
 	${SRC_DIR}/port_io.c               \
+	${SRC_DIR}/string.c                \
 	${SRC_DIR}/uart.c                  \
 	${SRC_DIR}/vga.c
 

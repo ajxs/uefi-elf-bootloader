@@ -9,6 +9,7 @@
 #include <vga.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
@@ -18,22 +19,6 @@ static size_t vga_column;
 static uint8_t vga_color;
 static uint16_t* vga_buffer;
 
-/**
- * @brief Gets the size of a string.
- * Returns the number of chars making up a constant string.
- * @param str   The string to get the length of.
- * @return      The size of the string.
- */
-static size_t strlen(const char* str)
-{
-	/** The length of the string to be output. */
-	size_t len = 0;
-	while(str[len]) {
-		len++;
-	}
-
-	return len;
-}
 
 /**
  * create_vga_color_entry

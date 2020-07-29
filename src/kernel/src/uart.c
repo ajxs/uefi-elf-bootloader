@@ -10,27 +10,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <port_io.h>
+#include <string.h>
 
 /* COM1 Port address*/
 #define UART_PORT_COM1 0x3f8
-
-
-/**
- * @brief Gets the size of a string.
- * Returns the number of chars making up a constant string.
- * @param str   The string to get the length of.
- * @return      The size of the string.
- */
-static size_t strlen(const char* str)
-{
-	/** The length of the string to be output. */
-	size_t len = 0;
-	while(str[len]) {
-		len++;
-	}
-
-	return len;
-}
 
 
 /**

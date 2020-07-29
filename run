@@ -3,4 +3,3 @@
 # Cleans, builds and runs the OS image.
 make clean -C "src"
 make -C "src" && make -C "src" emu
-

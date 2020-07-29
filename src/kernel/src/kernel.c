@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <uart.h>
+#include <vga.h>
 
 /**
  * @brief The kernel main program.
@@ -16,8 +17,11 @@
  */
 void kernel_main(void)
 {
+	// Initialise VGA output.
+	vga_initialize();
+
 	// Initialise the UART.
-	uart_init();
+	uart_initialize();
 	uart_puts("Kernel: Initialised.\n");
 
 	while(1);

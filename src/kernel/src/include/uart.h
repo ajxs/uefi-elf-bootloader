@@ -12,7 +12,7 @@
  * @brief Initialises the UART.
  * Initialises the system UART for output.
  */
-void uart_init(void);
+void uart_initialize(void);
 
 /**
  * @brief Checks whether the UART receive buffer is empty.

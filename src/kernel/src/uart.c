@@ -34,9 +34,9 @@ static size_t strlen(const char* str)
 
 
 /**
- * uart_init
+ * uart_initialize
  */
-void uart_init(void)
+void uart_initialize(void)
 {
 	outb(UART_PORT_COM1 + 1, 0x00);    // Disable all interrupts
 	outb(UART_PORT_COM1 + 3, 0x80);    // Enable DLAB (set baud rate divisor)

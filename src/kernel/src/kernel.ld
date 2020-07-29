@@ -10,12 +10,7 @@
  */
 
 /** The physical starting address of the kernel. */
-KERNEL_PHYS_START = 0x100000;
-/**
- * The offset between the physical start and the start of the kernel's
- * mapping in virtual memory.
- */
-KERNEL_VMA_OFFSET = 0xC0000000;
+KERNEL_PHYS_START = 0x200000;
 /** The size of the kernel stack. */
 KERNEL_STACK_SIZE = 0x4000;
 
@@ -24,25 +19,24 @@ ENTRY (kernel_main)
 SECTIONS
 {
 	. = KERNEL_PHYS_START;
-	. += KERNEL_VMA_OFFSET;
 	kernel_start = .;
 
-	.text ALIGN (4K) : AT (ADDR (.text) - KERNEL_VMA_OFFSET)
+	.text : ALIGN (4K)
 	{
 		*(.text*)
 	}
 
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - KERNEL_VMA_OFFSET)
+	.rodata : ALIGN (4K)
 	{
 		*(.rodata*)
 	}
 
-	.data ALIGN (4K) : AT (ADDR (.data) - KERNEL_VMA_OFFSET)
+	.data : ALIGN (4K)
 	{
 		*(.data*)
 	}
 
-	.bss ALIGN (4K) : AT (ADDR (.bss) - KERNEL_VMA_OFFSET)
+	.bss : ALIGN (4K)
 	{
 		*(COMMON)
 		*(.bss*)

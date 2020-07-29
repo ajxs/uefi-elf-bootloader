@@ -39,7 +39,9 @@ LIBS := -lgcc
 
 AS_SOURCES :=
 
-C_SOURCES  := ${SRC_DIR}/kernel.c
+C_SOURCES  := ${SRC_DIR}/kernel.c    \
+	${SRC_DIR}/uart.c                  \
+	${SRC_DIR}/port_io.c
 
 OBJECTS    := ${AS_SOURCES:.S=.o}
 OBJECTS    += ${C_SOURCES:.c=.o}

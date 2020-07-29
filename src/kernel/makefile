@@ -32,7 +32,8 @@ CFLAGS :=               \
 LDFLAGS :=          \
 	-ffreestanding    \
 	-O2               \
-	-nostdlib
+	-nostdlib         \
+	-z max-page-size=0x1000
 
 LIBS := -lgcc
 

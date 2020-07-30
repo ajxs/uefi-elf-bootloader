@@ -14,8 +14,8 @@
 /**
  * @brief Gets the size of a string.
  * Returns the number of chars making up a constant string.
- * @param str   The string to get the length of.
- * @return      The size of the string.
+ * @param str[in]   The string to get the length of.
+ * @return          The size of the string.
  */
 size_t strlen(const char* str);
 

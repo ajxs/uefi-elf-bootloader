@@ -41,14 +41,14 @@ bool uart_is_transmit_buffer_empty(void);
 /**
  * @brief UART putchar.
  * Writes a character to the UART.
- * @param a    The char to write.
+ * @param a[in]    The char to write.
  */
 void uart_putchar(char a);
 
 /**
  * @brief UART puts.
  * Writes a string to the UART.
- * @param str    The string to write to the UART.
+ * @param str[in]    The string to write to the UART.
  */
 void uart_puts(const char* str);
 

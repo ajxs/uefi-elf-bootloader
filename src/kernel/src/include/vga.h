@@ -39,9 +39,9 @@ enum vga_color {
  * @brief Creates a VGA color entry.
  * Encodes two color codes into a VGA color entry, consisting of a fore
  * and background color.
- * @param fg The foreground color.
- * @param bg The background color.
- * @return The encoded VGA color entry.
+ * @param fg[in]    The foreground color.
+ * @param bg[in]    The background color.
+ * @return          The encoded VGA color entry.
  */
 uint8_t create_vga_color_entry(enum vga_color fg,
 	enum vga_color bg);
@@ -49,9 +49,9 @@ uint8_t create_vga_color_entry(enum vga_color fg,
 /**
  * @brief Creates a VGA character entry.
  * Encodes a VGA character entry, consisting of a character and its color entry.
- * @param uc       The character to encode.
- * @param color    The color to encode into the entry.
- * @retrn          The encoded VGA entry.
+ * @param uc[in]       The character to encode.
+ * @param color[in]    The color to encode into the entry.
+ * @return             The encoded VGA entry.
  */
 uint16_t create_vga_entry(unsigned char uc,
 	uint8_t color);
@@ -65,21 +65,21 @@ void vga_initialize(void);
 /**
  * @brief Sets the VGA color.
  * Sets the VGA terminal color.
- * @param color    The encoded VGA color code to set the terminalk to.
+ * @param color[in]    The encoded VGA color code to set the terminalk to.
  */
 void vga_set_color(uint8_t color);
 
 /**
  * @brief Prints a char to the screen.
  * Prints a char to the VGA buffer.
- * @param c The char to print to the VGA buffer.
+ * @param c[in]    The char to print to the VGA buffer.
  */
 void vga_putchar(char c);
 
 /**
  * @brief Writes a string to screen.
  * Writes a string to the VGA buffer.
- * @param str The string to write to the buffer.
+ * @param str[in]    The string to write to the buffer.
  */
 void vga_puts(const char* str);
 

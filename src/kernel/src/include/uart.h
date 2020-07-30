@@ -6,6 +6,9 @@
  * Contains definitions for serial IO.
  */
 
+#ifndef UART_H
+#define UART_H
+
 #include <stdbool.h>
 
 /**
@@ -31,7 +34,7 @@ char uart_getchar(void);
 /**
  * @brief Checks whether the UART transmit buffer is empty.
  * This function checks whether the UART transmit buffer is empty.
- * @return A boolean indicating whether the transmit buffer is empty. 
+ * @return A boolean indicating whether the transmit buffer is empty.
  */
 bool uart_is_transmit_buffer_empty(void);
 
@@ -48,3 +51,5 @@ void uart_putchar(char a);
  * @param str    The string to write to the UART.
  */
 void uart_puts(const char* str);
+
+#endif

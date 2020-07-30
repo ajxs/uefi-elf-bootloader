@@ -6,6 +6,9 @@
  * Contains definitions for string functions.
  */
 
+#ifndef STRING_H
+#define STRING_H
+
 #include <stddef.h>
 
 /**
@@ -15,3 +18,5 @@
  * @return      The size of the string.
  */
 size_t strlen(const char* str);
+
+#endif

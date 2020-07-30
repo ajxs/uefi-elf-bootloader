@@ -6,6 +6,9 @@
  * Contains definitions for VGA functionality.
  */
 
+#ifndef VGA_H
+#define VGA_H
+
 #include <stdint.h>
 
 /**
@@ -40,7 +43,7 @@ enum vga_color {
  * @param bg The background color.
  * @return The encoded VGA color entry.
  */
-uint8_t create_vga_color_entry(enum vga_color fg, 
+uint8_t create_vga_color_entry(enum vga_color fg,
 	enum vga_color bg);
 
 /**
@@ -79,3 +82,5 @@ void vga_putchar(char c);
  * @param str The string to write to the buffer.
  */
 void vga_puts(const char* str);
+
+#endif

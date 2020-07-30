@@ -17,6 +17,16 @@
 #include <serial.h>
 
 /**
+ * @brief Kernel boot info struct.
+ * Contains information passed to the kernel at boot time.
+ */
+typedef struct s_boot_info {
+	EFI_MEMORY_DESCRIPTOR* memory_map;
+	UINTN memory_map_size;
+	UINTN memory_map_descriptor_size;
+} Kernel_Boot_Info;
+
+/**
  * @brief The main UEFI executable entry.
  * The main bootloader entry point.
  * @param[in] ImageHandle    The firmware allocated handle for the EFI image.

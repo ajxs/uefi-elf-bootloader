@@ -24,7 +24,8 @@
 #define TARGET_PIXEL_FORMAT     PixelBlueGreenRedReserved8BitPerColor
 
 /**
- * Whether to draw a test pattern to video output to test the graphics output service.
+ * Whether to draw a test pattern to video output to test the graphics output
+ * service.
  */
 #define DRAW_TEST_SCREEN 0
 
@@ -32,8 +33,8 @@
  * @brief Allocates the memory map.
  * Allocates the memory map. This function needs to be run prior to exiting
  * UEFI boot services.
- * @param[out] memory_map            A pointer to the memory map buffer to be
- *                                   allocated in this function.
+ * @param[out] memory_map            A pointer to pointer to the memory map
+ *                                   buffer to be allocated in this function.
  * @param[out] memory_map_size       The size of the allocated buffer.
  * @param[out] memory_map_key        They key of the allocated memory map.
  * @param[out] descriptor_size       A pointer to the size of an individual
@@ -46,7 +47,7 @@
  * @warn    After this function has been run, no other boot services may be used
  *          otherwise the memory map will be considered invalid.
  */
-EFI_STATUS get_memory_map(OUT VOID* memory_map,
+EFI_STATUS get_memory_map(OUT VOID** memory_map,
 	OUT UINTN* memory_map_size,
 	OUT UINTN* memory_map_key,
 	OUT UINTN* descriptor_size,
@@ -97,7 +98,7 @@ EFI_STATUS debug_print_line(IN CHAR16* fmt,
 /**
  * get_memory_map
  */
-EFI_STATUS get_memory_map(OUT VOID* memory_map,
+EFI_STATUS get_memory_map(OUT VOID** memory_map,
 	OUT UINTN* memory_map_size,
 	OUT UINTN* memory_map_key,
 	OUT UINTN* descriptor_size,
@@ -107,7 +108,7 @@ EFI_STATUS get_memory_map(OUT VOID* memory_map,
 	EFI_STATUS status;
 
 	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
-		memory_map_size, memory_map, memory_map_key,
+		memory_map_size, *memory_map, memory_map_key,
 		descriptor_size, descriptor_version);
 	if(EFI_ERROR(status)) {
 		// This will always fail on the first attempt, this call will return the
@@ -124,7 +125,7 @@ EFI_STATUS get_memory_map(OUT VOID* memory_map,
 	#endif
 
 	status = uefi_call_wrapper(gBS->AllocatePool, 3,
-		EfiLoaderData, *memory_map_size, (VOID**)&memory_map);
+		EfiLoaderData, *memory_map_size, (VOID**)memory_map);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error allocating memory map buffer: %s\n",
 			get_efi_error_message(status));
@@ -132,12 +133,8 @@ EFI_STATUS get_memory_map(OUT VOID* memory_map,
 		return status;
 	}
 
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Getting memory map and exiting boot services\n");
-	#endif
-
 	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
-		memory_map_size, memory_map, memory_map_key,
+		memory_map_size, *memory_map, memory_map_key,
 		descriptor_size, descriptor_version);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error getting memory map: %s\n",
@@ -145,6 +142,9 @@ EFI_STATUS get_memory_map(OUT VOID* memory_map,
 
 		return status;
 	}
+
+	debug_print_line(L"Debug: Allocated memory map buffer at: 0x%llx\n",
+		*memory_map);
 
 	return EFI_SUCCESS;
 }
@@ -181,8 +181,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	/** The memory map descriptor. */
 	UINT32 descriptor_version;
 	/** Function pointer to the kernel entry point. */
-	void (*kernel_entry)(void);
-
+	void (*kernel_entry)(Kernel_Boot_Info boot_info);
+	/** Boot info struct, passed to the kernel. */
+	Kernel_Boot_Info boot_info;
 
 	// Initialise service protocols to NULL, so that we can detect if they are
 	// properly initialised in service functions.
@@ -193,8 +194,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	InitializeLib(ImageHandle, SystemTable);
 
 	// Disable the watchdog timer.
-	status = uefi_call_wrapper(gBS->SetWatchdogTimer, 4,
-		0, 0, 0, NULL);
+	status = uefi_call_wrapper(gBS->SetWatchdogTimer, 4, 0, 0, 0, NULL);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error setting watchdog timer: %s\n",
 			get_efi_error_message(status));
@@ -203,8 +203,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	}
 
 	// Reset console input.
-	status = uefi_call_wrapper(ST->ConIn->Reset, 2,
-		SystemTable->ConIn, FALSE);
+	status = uefi_call_wrapper(ST->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error resetting console input: %s\n",
 			get_efi_error_message(status));
@@ -304,8 +303,12 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		return status;
 	}
 
+	#ifdef DEBUG
+		debug_print_line(L"Debug: Getting memory map and exiting boot services\n");
+	#endif
+
 	// Get the memory map prior to exiting the boot service.
-	status = get_memory_map(memory_map, &memory_map_size,
+	status = get_memory_map(&memory_map, &memory_map_size,
 		&memory_map_key, &descriptor_size, &descriptor_version);
 	if(EFI_ERROR(status)) {
 		// Error will have already been printed;
@@ -321,10 +324,15 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		return status;
 	}
 
+	// Set kernel boot info.
+	boot_info.memory_map = memory_map;
+	boot_info.memory_map_size = memory_map_size;
+	boot_info.memory_map_descriptor_size = descriptor_size;
+
 	// Cast pointer to kernel entry.
-	kernel_entry = (void (*)(void))*kernel_entry_point;
+	kernel_entry = (void (*)(Kernel_Boot_Info))*kernel_entry_point;
 	// Jump to kernel entry.
-	kernel_entry();
+	kernel_entry(boot_info);
 
 	// Return an error if this code is ever reached.
 	return EFI_LOAD_ERROR;

@@ -120,8 +120,7 @@ EFI_STATUS get_memory_map(OUT VOID** memory_map,
 	}
 
 	#ifdef DEBUG
-		debug_print_line(L"Debug: Allocating memory map with size '%llu'\n",
-			*memory_map_size);
+		debug_print_line(L"Debug: Allocating memory map'\n");
 	#endif
 
 	status = uefi_call_wrapper(gBS->AllocatePool, 3,
@@ -143,8 +142,8 @@ EFI_STATUS get_memory_map(OUT VOID** memory_map,
 		return status;
 	}
 
-	debug_print_line(L"Debug: Allocated memory map buffer at: 0x%llx\n",
-		*memory_map);
+	debug_print_line(L"Debug: Allocated memory map buffer at: 0x%llx "
+		L"with size: %llu\n", *memory_map, *memory_map_size);
 
 	return EFI_SUCCESS;
 }

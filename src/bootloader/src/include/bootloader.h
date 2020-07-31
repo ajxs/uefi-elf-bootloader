@@ -22,6 +22,11 @@
 /**
  * @brief Kernel boot info struct.
  * Contains information passed to the kernel at boot time.
+ * This should be kept separate from the kernel implementation to improve the
+ * portability of the implementation:
+ * This definition uses the `EFI_MEMORY_DESCRIPTOR` and `UINTN` types so that it will
+ * automatically use the correct types for the target architecture. The corresponding
+ * definition within the kernel should have more architecture-specific types.
  */
 typedef struct s_boot_info {
 	EFI_MEMORY_DESCRIPTOR* memory_map;

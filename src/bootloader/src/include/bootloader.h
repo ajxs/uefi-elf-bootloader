@@ -16,6 +16,9 @@
 #include <graphics.h>
 #include <serial.h>
 
+/** The path to the kernel executable binary on the bootable media. */
+#define KERNEL_EXECUTABLE_PATH L"\\kernel.elf"
+
 /**
  * @brief Kernel boot info struct.
  * Contains information passed to the kernel at boot time.

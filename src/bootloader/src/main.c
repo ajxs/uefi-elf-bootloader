@@ -236,9 +236,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		&graphics_output_protocol, ImageHandle,
 		NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Failed to open the graphics output protocol on ");
-		debug_print_line(L"the active console output device: %s\n",
-			get_efi_error_message(status));
+		debug_print_line(L"Error: Failed to open the graphics output protocol on "
+			L"the active console output device: %s\n", get_efi_error_message(status));
 	}
 
 	// If we were able to obtain a protocol on the current output device handle
@@ -262,8 +261,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	// This will be used to load the kernel binary.
 	status = init_file_system_service();
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error initialising File System ");
-		debug_print_line(L"service: %s\n", get_efi_error_message(status));
+		debug_print_line(L"Fatal Error: Error initialising File System service: %s\n",
+			get_efi_error_message(status));
 
 		return status;
 	}
@@ -273,6 +272,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error opening root volume: %s\n",
 			get_efi_error_message(status));
+
 		return status;
 	}
 
@@ -280,7 +280,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		debug_print_line(L"Debug: Loading Kernel image\n");
 	#endif
 
-	status = load_kernel_image(root_file_system, L"\\kernel.elf",
+	status = load_kernel_image(root_file_system, KERNEL_EXECUTABLE_PATH,
 		kernel_entry_point);
 	if(EFI_ERROR(status)) {
 		debug_print_line(L"Fatal Error: Error loading Kernel image\n");
@@ -345,8 +345,7 @@ EFI_STATUS wait_for_input(OUT EFI_INPUT_KEY* key) {
 	/** The program status. */
 	EFI_STATUS status;
 	do {
-		status = uefi_call_wrapper(ST->ConIn->ReadKeyStroke, 2,
-			ST->ConIn, key);
+		status = uefi_call_wrapper(ST->ConIn->ReadKeyStroke, 2, ST->ConIn, key);
 	} while(status == EFI_NOT_READY);
 
 	return EFI_SUCCESS;

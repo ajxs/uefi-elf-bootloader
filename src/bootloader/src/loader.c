@@ -294,7 +294,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	}
 
 	#ifdef DEBUG
-		debug_print_line(L"Debug: ELF Header is valid\n");
+		debug_print_line(L"Debug: ELF header is valid\n");
 	#endif
 
 	// Free identity buffer.
@@ -311,7 +311,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	status = read_elf_file(kernel_img_file, file_class,
 		&kernel_header, &kernel_program_headers);
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error reading ELF File\n");
+		debug_print_line(L"Fatal Error: Error reading ELF file\n");
 		return status;
 	}
 

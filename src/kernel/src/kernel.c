@@ -17,7 +17,7 @@
  * @brief The kernel main program.
  * This is the kernel main entry point and its main program.
  */
-void kernel_main(Boot_Info boot_info)
+void kernel_main(Boot_Info* boot_info)
 {
 	// Initialise VGA output.
 	vga_initialize();

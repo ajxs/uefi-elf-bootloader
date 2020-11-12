@@ -180,7 +180,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	/** The memory map descriptor. */
 	UINT32 descriptor_version;
 	/** Function pointer to the kernel entry point. */
-	void (*kernel_entry)(Kernel_Boot_Info boot_info);
+	void (*kernel_entry)(Kernel_Boot_Info* boot_info);
 	/** Boot info struct, passed to the kernel. */
 	Kernel_Boot_Info boot_info;
 
@@ -337,9 +337,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	boot_info.memory_map_descriptor_size = descriptor_size;
 
 	// Cast pointer to kernel entry.
-	kernel_entry = (void (*)(Kernel_Boot_Info))*kernel_entry_point;
+	kernel_entry = (void (*)(Kernel_Boot_Info*))*kernel_entry_point;
 	// Jump to kernel entry.
-	kernel_entry(boot_info);
+	kernel_entry(&boot_info);
 
 	// Return an error if this code is ever reached.
 	return EFI_LOAD_ERROR;

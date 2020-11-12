@@ -213,17 +213,25 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	// Initialise the serial service.
 	status = init_serial_service();
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error initialising Serial IO service\n");
+		if(status == EFI_NOT_FOUND) {
+			debug_print_line(L"Debug: No serial device found\n");
+		} else {
+			debug_print_line(L"Error: Error initialising Serial IO service\n");
 
-		return status;
+			return status;
+		}
 	}
 
 	// Initialise the graphics output service.
 	status = init_graphics_output_service();
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error initialising Graphics service\n");
+		if(status == EFI_NOT_FOUND) {
+			debug_print_line(L"Debug: No graphics device found\n");
+		} else {
+			debug_print_line(L"Fatal Error: Error initialising Graphics service\n");
 
-		return status;
+			return status;
+		}
 	}
 
 

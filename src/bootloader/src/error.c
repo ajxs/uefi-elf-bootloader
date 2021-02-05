@@ -15,6 +15,10 @@
  * @brief Error message string buffer.
  * This is used for storing the error message string returned from the
  * `get_efi_error_message` function.
+ * @note 256 is a more-than-suitable length for this buffer since we know
+ * ahead of time the lengths of all of the GNU EFI error messages. Refer
+ * to the GNU-EFI source:
+ * `https://sourceforge.net/p/gnu-efi/code/ci/master/tree/lib/error.c`
  */
 CHAR16 error_message_buffer[256];
 

@@ -27,7 +27,7 @@
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */
-#define DRAW_TEST_SCREEN 0
+#define DRAW_TEST_SCREEN 1
 
 /**
  * @brief Allocates the memory map.
@@ -106,6 +106,12 @@ EFI_STATUS get_memory_map(OUT VOID** memory_map,
 {
 	/** Program status. */
 	EFI_STATUS status;
+	/** Input key type used to capture user input. */
+	EFI_INPUT_KEY input_key;
+
+	#ifdef DEBUG
+		debug_print_line(L"Debug: Allocating memory map\n");
+	#endif
 
 	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
 		memory_map_size, *memory_map, memory_map_key,
@@ -116,29 +122,31 @@ EFI_STATUS get_memory_map(OUT VOID** memory_map,
 		if(status != EFI_BUFFER_TOO_SMALL) {
 			debug_print_line(L"Fatal Error: Error getting memory map size: %s\n",
 				get_efi_error_message(status));
+
+			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
+				debug_print_line(L"Press any key to reboot...");
+				wait_for_input(&input_key);
+			#endif
+
+			return status;
 		}
 	}
 
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Allocating memory map'\n");
-	#endif
+	// According to: https://stackoverflow.com/a/39674958/5931673
+	// Up to two new descriptors may be created in the process of allocating the
+	// new pool memory.
+	*memory_map_size += 2 * (*descriptor_size);
 
 	status = uefi_call_wrapper(gBS->AllocatePool, 3,
 		EfiLoaderData, *memory_map_size, (VOID**)memory_map);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error allocating memory map buffer: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error allocating memory map buffer")) {
 		return status;
 	}
 
 	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
 		memory_map_size, *memory_map, memory_map_key,
 		descriptor_size, descriptor_version);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error getting memory map: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error getting memory map")) {
 		return status;
 	}
 
@@ -183,6 +191,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	void (*kernel_entry)(Kernel_Boot_Info* boot_info);
 	/** Boot info struct, passed to the kernel. */
 	Kernel_Boot_Info boot_info;
+	/** Input key type used to capture user input. */
+	EFI_INPUT_KEY input_key;
 
 	// Initialise service protocols to NULL, so that we can detect if they are
 	// properly initialised in service functions.
@@ -203,10 +213,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	// Reset console input.
 	status = uefi_call_wrapper(ST->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error resetting console input: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error resetting console input")) {
 		return status;
 	}
 
@@ -216,7 +223,12 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		if(status == EFI_NOT_FOUND) {
 			debug_print_line(L"Debug: No serial device found\n");
 		} else {
-			debug_print_line(L"Error: Error initialising Serial IO service\n");
+			debug_print_line(L"Fatal Error: Error initialising Serial IO service\n");
+
+			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
+				debug_print_line(L"Press any key to reboot...");
+				wait_for_input(&input_key);
+			#endif
 
 			return status;
 		}
@@ -229,6 +241,11 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 			debug_print_line(L"Debug: No graphics device found\n");
 		} else {
 			debug_print_line(L"Fatal Error: Error initialising Graphics service\n");
+
+			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
+				debug_print_line(L"Press any key to reboot...");
+				wait_for_input(&input_key);
+			#endif
 
 			return status;
 		}
@@ -253,10 +270,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	if(graphics_output_protocol) {
 		status = set_graphics_mode(graphics_output_protocol, TARGET_SCREEN_WIDTH,
 			TARGET_SCREEN_HEIGHT, TARGET_PIXEL_FORMAT);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Fatal Error: Error setting graphics mode: %s\n",
-				get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error setting graphics mode")) {
 			return status;
 		}
 
@@ -268,10 +282,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	// Initialise the simple file system service.
 	// This will be used to load the kernel binary.
 	status = init_file_system_service();
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error initialising File System service: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error initialising File System service")) {
 		return status;
 	}
 
@@ -290,8 +301,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	status = load_kernel_image(root_file_system, KERNEL_EXECUTABLE_PATH,
 		kernel_entry_point);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error loading Kernel image\n");
+	if(check_for_fatal_error(status, L"Error loading Kernel image")) {
 		return status;
 	}
 
@@ -305,8 +315,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#endif
 
 	status = close_graphic_output_service();
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error freeing Graphics Output service\n");
+	if(check_for_fatal_error(status, L"Error freeing Graphics Output service")) {
 		return status;
 	}
 
@@ -324,10 +333,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	status = uefi_call_wrapper(gBS->ExitBootServices, 2,
 		ImageHandle, memory_map_key);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error exiting boot services: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error exiting boot services")) {
 		return status;
 	}
 
@@ -356,5 +362,5 @@ EFI_STATUS wait_for_input(OUT EFI_INPUT_KEY* key) {
 		status = uefi_call_wrapper(ST->ConIn->ReadKeyStroke, 2, ST->ConIn, key);
 	} while(status == EFI_NOT_READY);
 
-	return EFI_SUCCESS;
+	return status;
 }

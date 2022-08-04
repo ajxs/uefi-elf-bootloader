@@ -15,6 +15,11 @@
 #include <loader.h>
 #include <serial.h>
 
+/**
+ * Whether to prompt, and wait for user input before rebooting in the case
+ * of an unrecoverable error.
+ */
+#define PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR 1
 
 /**
  * load_segment
@@ -45,10 +50,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 	status = uefi_call_wrapper(kernel_img_file->SetPosition, 2,
 		kernel_img_file, segment_file_offset);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error setting file pointer position to "
-			L"segment offset: %s\n", get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error setting file pointer to segment offset")) {
 		return status;
 	}
 
@@ -60,10 +62,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 	status = uefi_call_wrapper(gBS->AllocatePages, 4,
 		AllocateAnyPages, EfiLoaderData, segment_page_count,
 		(EFI_PHYSICAL_ADDRESS*)segment_virtual_address);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error allocating pages for ELF segment: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error allocating pages for ELF segment")) {
 		return status;
 	}
 
@@ -77,10 +76,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 		status = uefi_call_wrapper(gBS->AllocatePool, 3,
 			EfiLoaderCode, buffer_read_size, (VOID**)&program_data);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Error: Error allocating kernel segment buffer: %s\n",
-				get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error allocating kernel segment buffer")) {
 			return status;
 		}
 
@@ -91,10 +87,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 		status = uefi_call_wrapper(kernel_img_file->Read, 3,
 			kernel_img_file, &buffer_read_size, (VOID*)program_data);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Error: Error reading segment data: %s\n",
-				get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error reading segment data")) {
 			return status;
 		}
 
@@ -105,10 +98,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 		status = uefi_call_wrapper(gBS->CopyMem, 3,
 			segment_virtual_address, program_data, segment_file_size);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Error: Error copying program section "
-				L"into memory: %s\n", get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error copying program section into memory")) {
 			return status;
 		}
 
@@ -117,10 +107,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 		#endif
 
 		status = uefi_call_wrapper(gBS->FreePool, 1, program_data);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Error: Error freeing program section: %s\n",
-				get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error freeing program section")) {
 			return status;
 		}
 	}
@@ -139,10 +126,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 		status = uefi_call_wrapper(gBS->SetMem, 3,
 			zero_fill_start, zero_fill_count, 0);
-		if(EFI_ERROR(status)) {
-			debug_print_line(L"Error: Error zero filling segment: %s\n",
-				get_efi_error_message(status));
-
+		if(check_for_fatal_error(status, L"Error zero filling segment")) {
 			return status;
 		}
 	}

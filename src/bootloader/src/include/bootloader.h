@@ -20,6 +20,12 @@
 #define KERNEL_EXECUTABLE_PATH L"\\kernel.elf"
 
 /**
+ * Whether to prompt, and wait for user input before rebooting in the case
+ * of an unrecoverable error.
+ */
+#define PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR 1
+
+/**
  * @brief Kernel boot info struct.
  * Contains information passed to the kernel at boot time.
  * This should be kept separate from the kernel implementation to improve the

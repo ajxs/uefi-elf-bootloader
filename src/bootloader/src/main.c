@@ -150,9 +150,6 @@ EFI_STATUS get_memory_map(OUT VOID** memory_map,
 		return status;
 	}
 
-	debug_print_line(L"Debug: Allocated memory map buffer at: 0x%llx "
-		L"with size: %llu\n", *memory_map, *memory_map_size);
-
 	return EFI_SUCCESS;
 }
 

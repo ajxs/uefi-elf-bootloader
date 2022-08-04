@@ -20,6 +20,7 @@ INCLUDE_FLAG := $(foreach d, $(INCLUDE_DIRS), -I$d)
 
 
 CFLAGS := ${INCLUDE_FLAG}   \
+	-ffreestanding            \
 	-fno-stack-protector      \
 	-fpic                     \
 	-fshort-wchar             \

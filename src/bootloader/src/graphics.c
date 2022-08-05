@@ -75,7 +75,7 @@ VOID draw_rect(IN EFI_GRAPHICS_OUTPUT_PROTOCOL* const protocol,
 	for(row = 0; row < height; row++) {
 		for(col = 0; col < width; col++) {
 			at = (UINT32*)protocol->Mode->FrameBufferBase + _x + col;
-			at += ((_y + row) * protocol->Mode->Info->HorizontalResolution);
+			at += ((_y + row) * protocol->Mode->Info->PixelsPerScanLine);
 
 			*at = color;
 		}

@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <port_io.h>
 #include <string.h>
+#include <uart.h>
 
 /* COM1 Port address*/
 #define UART_PORT_COM1 0x3f8

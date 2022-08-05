@@ -25,6 +25,13 @@
  */
 #define PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR 1
 
+typedef struct s_boot_video_info {
+	VOID* framebuffer_pointer;
+	UINT32 horizontal_resolution;
+	UINT32 vertical_resolution;
+	UINT32 pixels_per_scaline;
+} Kernel_Boot_Video_Mode_Info;
+
 /**
  * @brief Kernel boot info struct.
  * Contains information passed to the kernel at boot time.
@@ -38,6 +45,7 @@ typedef struct s_boot_info {
 	EFI_MEMORY_DESCRIPTOR* memory_map;
 	UINTN memory_map_size;
 	UINTN memory_map_descriptor_size;
+	Kernel_Boot_Video_Mode_Info video_mode_info;
 } Kernel_Boot_Info;
 
 /**

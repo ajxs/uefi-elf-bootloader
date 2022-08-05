@@ -298,7 +298,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	status = load_kernel_image(root_file_system, KERNEL_EXECUTABLE_PATH,
 		kernel_entry_point);
-	if(check_for_fatal_error(status, L"Error loading Kernel image")) {
+	if(EFI_ERROR(status)) {
+		// In the case that loading the kernel image failed, the error message will
+		// have already been printed.
 		return status;
 	}
 
@@ -306,6 +308,15 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		debug_print_line(L"Debug: Set Kernel Entry Point to: '0x%llx'\n",
 			*kernel_entry_point);
 	#endif
+
+	boot_info.video_mode_info.framebuffer_pointer =
+		graphics_output_protocol->Mode->FrameBufferBase;
+	boot_info.video_mode_info.horizontal_resolution =
+		graphics_output_protocol->Mode->Info->HorizontalResolution;
+	boot_info.video_mode_info.vertical_resolution =
+		graphics_output_protocol->Mode->Info->VerticalResolution;
+	boot_info.video_mode_info.pixels_per_scaline =
+		graphics_output_protocol->Mode->Info->PixelsPerScanLine;
 
 	#ifdef DEBUG
 		debug_print_line(L"Debug: Closing Graphics Output Service handles\n");
@@ -321,7 +332,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#endif
 
 	// Get the memory map prior to exiting the boot service.
-	status = get_memory_map(&memory_map, &memory_map_size,
+	status = get_memory_map((VOID**)&memory_map, &memory_map_size,
 		&memory_map_key, &descriptor_size, &descriptor_version);
 	if(EFI_ERROR(status)) {
 		// Error will have already been printed;

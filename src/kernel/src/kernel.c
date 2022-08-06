@@ -12,12 +12,11 @@
 #include <boot.h>
 #include <graphics.h>
 #include <uart.h>
-#include <vga.h>
 
 /**
  * Whether to draw a test pattern to video output.
  */
-#define DRAW_TEST_SCREEN 1
+#define DRAW_TEST_SCREEN 0
 
 #define TEST_SCREEN_COL_NUM             4
 #define TEST_SCREEN_ROW_NUM             3
@@ -73,9 +72,6 @@ static void draw_test_screen(Boot_Info* boot_info)
  */
 void kernel_main(Boot_Info* boot_info)
 {
-	// Initialise VGA output.
-	vga_initialize();
-
 	// Initialise the UART.
 	uart_initialize();
 	uart_puts("Kernel: Initialised.\n");

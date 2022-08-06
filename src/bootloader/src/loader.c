@@ -60,7 +60,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 	#endif
 
 	status = uefi_call_wrapper(gBS->AllocatePages, 4,
-		AllocateAnyPages, EfiLoaderData, segment_page_count,
+		AllocateAddress, EfiLoaderData, segment_page_count,
 		(EFI_PHYSICAL_ADDRESS*)segment_virtual_address);
 	if(check_for_fatal_error(status, L"Error allocating pages for ELF segment")) {
 		return status;

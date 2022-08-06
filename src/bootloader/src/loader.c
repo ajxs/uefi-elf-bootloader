@@ -28,7 +28,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 	IN EFI_PHYSICAL_ADDRESS const segment_file_offset,
 	IN UINTN const segment_file_size,
 	IN UINTN const segment_memory_size,
-	IN EFI_PHYSICAL_ADDRESS const segment_virtual_address)
+	IN EFI_PHYSICAL_ADDRESS const segment_physical_address)
 {
 	/** Program status. */
 	EFI_STATUS status;
@@ -56,12 +56,12 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 	#ifdef DEBUG
 		debug_print_line(L"Debug: Allocating %lu pages at address '0x%llx'\n",
-			segment_page_count, segment_virtual_address);
+			segment_page_count, segment_physical_address);
 	#endif
 
 	status = uefi_call_wrapper(gBS->AllocatePages, 4,
-		AllocateAnyPages, EfiLoaderData, segment_page_count,
-		(EFI_PHYSICAL_ADDRESS*)segment_virtual_address);
+		AllocateAddress, EfiLoaderData, segment_page_count,
+		(EFI_PHYSICAL_ADDRESS*)&segment_physical_address);
 	if(check_for_fatal_error(status, L"Error allocating pages for ELF segment")) {
 		return status;
 	}
@@ -93,11 +93,11 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 
 		#ifdef DEBUG
 			debug_print_line(L"Debug: Copying segment to memory address '0x%llx'\n",
-				segment_virtual_address);
+				segment_physical_address);
 		#endif
 
 		status = uefi_call_wrapper(gBS->CopyMem, 3,
-			segment_virtual_address, program_data, segment_file_size);
+			segment_physical_address, program_data, segment_file_size);
 		if(check_for_fatal_error(status, L"Error copying program section into memory")) {
 			return status;
 		}
@@ -115,7 +115,7 @@ EFI_STATUS load_segment(IN EFI_FILE* const kernel_img_file,
 	// As per ELF Standard, if the size in memory is larger than the file size
 	// the segment is mandated to be zero filled.
 	// For more information on Refer to ELF standard page 34.
-	zero_fill_start = segment_virtual_address + segment_file_size;
+	zero_fill_start = segment_physical_address + segment_file_size;
 	zero_fill_count = segment_memory_size - segment_file_size;
 
 	if(zero_fill_count > 0) {
@@ -181,7 +181,7 @@ EFI_STATUS load_program_segments(IN EFI_FILE* const kernel_img_file,
 					program_headers[p].p_offset,
 					program_headers[p].p_filesz,
 					program_headers[p].p_memsz,
-					program_headers[p].p_vaddr);
+					program_headers[p].p_paddr);
 				if(EFI_ERROR(status)) {
 					// Error has already been printed in the case that loading an
 					// individual segment failed.
@@ -202,7 +202,7 @@ EFI_STATUS load_program_segments(IN EFI_FILE* const kernel_img_file,
 					program_headers[p].p_offset,
 					program_headers[p].p_filesz,
 					program_headers[p].p_memsz,
-					program_headers[p].p_vaddr);
+					program_headers[p].p_paddr);
 				if(EFI_ERROR(status)) {
 					return status;
 				}
@@ -251,20 +251,15 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	status = uefi_call_wrapper(root_file_system->Open, 5,
 		root_file_system, &kernel_img_file, kernel_image_filename,
 		EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error opening kernel file: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error opening kernel file")) {
 		return status;
 	}
-
 
 	// Read ELF Identity.
 	// From here we can validate the ELF executable, as well as determine the
 	// file class.
 	status = read_elf_identity(kernel_img_file, &elf_identity_buffer);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error reading executable identity\n");
+	if(check_for_fatal_error(status, L"Error reading executable identity")) {
 		return status;
 	}
 
@@ -283,10 +278,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 
 	// Free identity buffer.
 	status = uefi_call_wrapper(gBS->FreePool, 1, elf_identity_buffer);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error freeing kernel identity buffer: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error freeing kernel identity buffer")) {
 		return status;
 	}
 
@@ -294,8 +286,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	// Read the ELF file and program headers.
 	status = read_elf_file(kernel_img_file, file_class,
 		&kernel_header, &kernel_program_headers);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error reading ELF file\n");
+	if(check_for_fatal_error(status, L"Error reading ELF file")) {
 		return status;
 	}
 
@@ -313,7 +304,8 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	status = load_program_segments(kernel_img_file, file_class,
 		kernel_header, kernel_program_headers);
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error loading program sections\n");
+		// In the case that loading the kernel segments failed, the error message will
+		// have already been printed.
 		return status;
 	}
 
@@ -323,10 +315,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	#endif
 
 	status = uefi_call_wrapper(kernel_img_file->Close, 1, kernel_img_file);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error closing kernel img: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error closing kernel image")) {
 		return status;
 	}
 
@@ -335,10 +324,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	#endif
 
 	status = uefi_call_wrapper(gBS->FreePool, 1, (VOID*)kernel_header);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error freeing kernel header buffer: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error freeing kernel header buffer")) {
 		return status;
 	}
 
@@ -347,10 +333,7 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	#endif
 
 	status = uefi_call_wrapper(gBS->FreePool, 1, (VOID*)kernel_program_headers);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error freeing kernel "
-			"program headers buffer: %s\n", get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error freeing kernel program headers buffer")) {
 		return status;
 	}
 

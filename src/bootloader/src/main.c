@@ -27,7 +27,7 @@
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */
-#define DRAW_TEST_SCREEN 1
+#define DRAW_TEST_SCREEN 0
 
 /**
  * @brief Allocates the memory map.
@@ -310,7 +310,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#endif
 
 	boot_info.video_mode_info.framebuffer_pointer =
-		graphics_output_protocol->Mode->FrameBufferBase;
+		(VOID*)graphics_output_protocol->Mode->FrameBufferBase;
 	boot_info.video_mode_info.horizontal_resolution =
 		graphics_output_protocol->Mode->Info->HorizontalResolution;
 	boot_info.video_mode_info.vertical_resolution =

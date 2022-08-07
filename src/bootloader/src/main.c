@@ -201,10 +201,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	// Disable the watchdog timer.
 	status = uefi_call_wrapper(gBS->SetWatchdogTimer, 4, 0, 0, 0, NULL);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error setting watchdog timer: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error setting watchdog timer")) {
 		return status;
 	}
 
@@ -218,7 +215,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	status = init_serial_service();
 	if(EFI_ERROR(status)) {
 		if(status == EFI_NOT_FOUND) {
-			debug_print_line(L"Debug: No serial device found\n");
+			#ifdef DEBUG
+				debug_print_line(L"Debug: No serial device found\n");
+			#endif
 		} else {
 			debug_print_line(L"Fatal Error: Error initialising Serial IO service\n");
 
@@ -235,7 +234,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	status = init_graphics_output_service();
 	if(EFI_ERROR(status)) {
 		if(status == EFI_NOT_FOUND) {
-			debug_print_line(L"Debug: No graphics device found\n");
+			#ifdef DEBUG
+				debug_print_line(L"Debug: No graphics device found\n");
+			#endif
 		} else {
 			debug_print_line(L"Fatal Error: Error initialising Graphics service\n");
 
@@ -267,7 +268,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	if(graphics_output_protocol) {
 		status = set_graphics_mode(graphics_output_protocol, TARGET_SCREEN_WIDTH,
 			TARGET_SCREEN_HEIGHT, TARGET_PIXEL_FORMAT);
-		if(check_for_fatal_error(status, L"Error setting graphics mode")) {
+		if(EFI_ERROR(status)) {
+			// Error has already been printed.
 			return status;
 		}
 
@@ -279,16 +281,14 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	// Initialise the simple file system service.
 	// This will be used to load the kernel binary.
 	status = init_file_system_service();
-	if(check_for_fatal_error(status, L"Error initialising File System service")) {
+	if(EFI_ERROR(status)) {
+		// Error has already been printed.
 		return status;
 	}
 
 	status = uefi_call_wrapper(file_system_service.protocol->OpenVolume, 2,
 		file_system_service.protocol, &root_file_system);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Fatal Error: Error opening root volume: %s\n",
-			get_efi_error_message(status));
-
+	if(check_for_fatal_error(status, L"Error opening root volume")) {
 		return status;
 	}
 
@@ -323,7 +323,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#endif
 
 	status = close_graphic_output_service();
-	if(check_for_fatal_error(status, L"Error freeing Graphics Output service")) {
+	if(check_for_fatal_error(status, L"Error closing Graphics Output service")) {
 		return status;
 	}
 
@@ -335,7 +335,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	status = get_memory_map((VOID**)&memory_map, &memory_map_size,
 		&memory_map_key, &descriptor_size, &descriptor_version);
 	if(EFI_ERROR(status)) {
-		// Error will have already been printed;
+		// Error has already been printed.
 		return status;
 	}
 

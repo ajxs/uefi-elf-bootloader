@@ -26,7 +26,7 @@ EFI_STATUS init_file_system_service(void)
 	EFI_STATUS status = uefi_call_wrapper(gBS->LocateProtocol, 3,
 		&gEfiSimpleFileSystemProtocolGuid, NULL, &file_system_service.protocol);
 	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error locating Simple File System Protocol: %s\n",
+		debug_print_line(L"Fatal Error: Error locating Simple File System Protocol: %s\n",
 			get_efi_error_message(status));
 
 		return status;

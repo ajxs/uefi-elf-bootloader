@@ -48,12 +48,8 @@ EFI_STATUS close_graphic_output_service()
 {
 	EFI_STATUS status = uefi_call_wrapper(gBS->FreePool, 1,
 		graphics_service.handle_buffer);
-	if(EFI_ERROR(status)) {
-		debug_print_line(L"Error: Error releasing GOP handle buffer: %s\n",
-			get_efi_error_message(status));
-	}
 
-	return EFI_SUCCESS;
+	return status;
 }
 
 

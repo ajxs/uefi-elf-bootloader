@@ -24,6 +24,22 @@
 #define TARGET_PIXEL_FORMAT     PixelBlueGreenRedReserved8BitPerColor
 
 /**
+ * Graphics Service instance.
+ * Refer to definition in bootloader.h
+ */
+Uefi_Graphics_Service graphics_service;
+/**
+ * File System Service instance.
+ * Refer to definition in bootloader.h
+ */
+Uefi_File_System_Service file_system_service;
+/**
+ * Serial IO Service instance.
+ * Refer to definition in bootloader.h
+ */
+Uefi_Serial_Service serial_service;
+
+/**
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */

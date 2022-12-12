@@ -114,16 +114,16 @@ EFI_STATUS debug_print_line(IN CHAR16* fmt,
  * Contains a collection of EFI handles supporting the Graphics Output Protocol.
  * Used for accessing the framebuffers of each supporting device.
  */
-Uefi_Graphics_Service graphics_service;
+extern Uefi_Graphics_Service graphics_service;
 /**
  * @brief The Simple File System service.
  * Contains the Simple File System protocol, used to interact with file system entities.
  */
-Uefi_File_System_Service file_system_service;
+extern Uefi_File_System_Service file_system_service;
 /**
  * @brief The Serial IO service.
  * The Serial IO. Used for outputting text to a serial port.
  */
-Uefi_Serial_Service serial_service;
+extern Uefi_Serial_Service serial_service;
 
 #endif

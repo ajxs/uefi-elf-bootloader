@@ -25,6 +25,7 @@ INCLUDE_FLAG := ${foreach d, ${INCLUDE_DIRS}, -I$d}
 CFLAGS :=               \
 	-std=gnu99            \
 	-ffreestanding        \
+	-fno-common           \
 	-O2                   \
 	-Wall                 \
 	-Wextra               \

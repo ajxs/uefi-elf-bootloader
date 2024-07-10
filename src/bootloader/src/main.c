@@ -11,13 +11,15 @@
 #include <efi.h>
 #include <efilib.h>
 #include <stdarg.h>
+#include <elf.h>
 
 #include <bootloader.h>
-#include <elf.h>
+#include <debug.h>
 #include <error.h>
 #include <fs.h>
 #include <graphics.h>
 #include <serial.h>
+#include <memory_map.h>
 
 #define TARGET_SCREEN_WIDTH     1024
 #define TARGET_SCREEN_HEIGHT    768
@@ -43,131 +45,7 @@ Uefi_Serial_Service serial_service;
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */
-#define DRAW_TEST_SCREEN 0
-
-/**
- * @brief Allocates the memory map.
- * Allocates the memory map. This function needs to be run prior to exiting
- * UEFI boot services.
- * @param[out] memory_map            A pointer to pointer to the memory map
- *                                   buffer to be allocated in this function.
- * @param[out] memory_map_size       The size of the allocated buffer.
- * @param[out] memory_map_key        They key of the allocated memory map.
- * @param[out] descriptor_size       A pointer to the size of an individual
- *                                   EFI_MEMORY_DESCRIPTOR.
- * @param[out] descriptor_version    A pointer to the version number associated
- *                                   with the EFI_MEMORY_DESCRIPTOR.
- * @return                   The program status.
- * @retval EFI_SUCCESS       The function executed successfully.
- * @retval other             A fatal error occurred getting the memory map.
- * @warn    After this function has been run, no other boot services may be used
- *          otherwise the memory map will be considered invalid.
- */
-EFI_STATUS get_memory_map(OUT VOID** memory_map,
-	OUT UINTN* memory_map_size,
-	OUT UINTN* memory_map_key,
-	OUT UINTN* descriptor_size,
-	OUT UINT32* descriptor_version);
-
-
-/**
- * debug_print_line
- */
-EFI_STATUS debug_print_line(IN CHAR16* fmt,
-	...)
-{
-	/** Main bootloader application status. */
-	EFI_STATUS status;
-	/** The variadic argument list passed to the VSPrintf function. */
-	va_list args;
-	/**
-	 * The output message buffer.
-	 * The string content is copied into this buffer. The maximum length is set
-	 * to the maximum serial buffer length.
-	 */
-	CHAR16 output_message[MAX_SERIAL_OUT_STRING_LENGTH];
-
-	va_start(args, fmt);
-
-	// If the serial service has been initialised, use this as the output medium.
-	// Otherwise use the default GNU-EFI output.
-	if(serial_service.protocol) {
-		VSPrint(output_message, MAX_SERIAL_OUT_STRING_LENGTH, fmt, args);
-
-		status = print_to_serial_out(serial_service.protocol, output_message);
-		if(EFI_ERROR(status)) {
-			Print(L"Error: Error printing to serial output: %s\n",
-				get_efi_error_message(status));
-
-			return status;
-		}
-	} else {
-		VPrint(fmt, args);
-	}
-
-	va_end(args);
-
-	return EFI_SUCCESS;
-};
-
-
-/**
- * get_memory_map
- */
-EFI_STATUS get_memory_map(OUT VOID** memory_map,
-	OUT UINTN* memory_map_size,
-	OUT UINTN* memory_map_key,
-	OUT UINTN* descriptor_size,
-	OUT UINT32* descriptor_version)
-{
-	/** Program status. */
-	EFI_STATUS status;
-	/** Input key type used to capture user input. */
-	EFI_INPUT_KEY input_key;
-
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Allocating memory map\n");
-	#endif
-
-	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
-		memory_map_size, *memory_map, memory_map_key,
-		descriptor_size, descriptor_version);
-	if(EFI_ERROR(status)) {
-		// This will always fail on the first attempt, this call will return the
-		// required buffer size.
-		if(status != EFI_BUFFER_TOO_SMALL) {
-			debug_print_line(L"Fatal Error: Error getting memory map size: %s\n",
-				get_efi_error_message(status));
-
-			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
-				debug_print_line(L"Press any key to reboot...");
-				wait_for_input(&input_key);
-			#endif
-
-			return status;
-		}
-	}
-
-	// According to: https://stackoverflow.com/a/39674958/5931673
-	// Up to two new descriptors may be created in the process of allocating the
-	// new pool memory.
-	*memory_map_size += 2 * (*descriptor_size);
-
-	status = uefi_call_wrapper(gBS->AllocatePool, 3,
-		EfiLoaderData, *memory_map_size, (VOID**)memory_map);
-	if(check_for_fatal_error(status, L"Error allocating memory map buffer")) {
-		return status;
-	}
-
-	status = uefi_call_wrapper(gBS->GetMemoryMap, 5,
-		memory_map_size, *memory_map, memory_map_key,
-		descriptor_size, descriptor_version);
-	if(check_for_fatal_error(status, L"Error getting memory map")) {
-		return status;
-	}
-
-	return EFI_SUCCESS;
-}
+#define DRAW_TEST_SCREEN 1
 
 
 /**
@@ -346,6 +224,16 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#ifdef DEBUG
 		debug_print_line(L"Debug: Getting memory map and exiting boot services\n");
 	#endif
+
+	// Get the memory map prior to exiting the boot service.
+	status = get_memory_map((VOID**)&memory_map, &memory_map_size,
+		&memory_map_key, &descriptor_size, &descriptor_version);
+	if(EFI_ERROR(status)) {
+		// Error has already been printed.
+		return status;
+	}
+
+	debug_print_memory_map(memory_map, memory_map_size, descriptor_size);
 
 	// Get the memory map prior to exiting the boot service.
 	status = get_memory_map((VOID**)&memory_map, &memory_map_size,

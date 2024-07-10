@@ -4,7 +4,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 ARCH := x86_64
-CC   := ${ARCH}-elf-gcc
+CC   := ${ARCH}-unknown-elf-gcc
 
 BUILD_DIR  := build
 SRC_DIR    := src
@@ -46,10 +46,12 @@ LDFLAGS      := -nostdlib    \
 
 
 C_SOURCES := ${SRC_DIR}/elf.c    \
+	${SRC_DIR}/debug.c             \
 	${SRC_DIR}/error.c             \
 	${SRC_DIR}/fs.c                \
 	${SRC_DIR}/graphics.c          \
 	${SRC_DIR}/loader.c            \
+	${SRC_DIR}/memory_map.c        \
 	${SRC_DIR}/main.c              \
 	${SRC_DIR}/serial.c
 

@@ -11,6 +11,7 @@
 #include <efilib.h>
 
 #include <bootloader.h>
+#include <debug.h>
 #include <elf.h>
 #include <error.h>
 

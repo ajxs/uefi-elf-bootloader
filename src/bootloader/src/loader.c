@@ -10,6 +10,7 @@
 #include <efilib.h>
 
 #include <bootloader.h>
+#include <debug.h>
 #include <elf.h>
 #include <error.h>
 #include <loader.h>
@@ -160,8 +161,9 @@ EFI_STATUS load_program_segments(IN EFI_FILE* const kernel_img_file,
 
 	// Exit if there are no executable sections in the kernel image.
 	if(n_program_headers == 0) {
-		debug_print_line(L"Fatal Error: No program segments to load ");
-		debug_print_line(L"in Kernel image\n");
+		debug_print_line(
+			L"Fatal Error: No program segments to load in Kernel image\n"
+		);
 
 		return EFI_INVALID_PARAMETER;
 	}
@@ -229,7 +231,7 @@ EFI_STATUS load_program_segments(IN EFI_FILE* const kernel_img_file,
  */
 EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	IN CHAR16* const kernel_image_filename,
-	OUT EFI_PHYSICAL_ADDRESS* kernel_entry_point)
+	OUT EFI_VIRTUAL_ADDRESS* kernel_entry_point)
 {
 	/** Program status. */
 	EFI_STATUS status;

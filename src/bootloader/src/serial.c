@@ -11,6 +11,7 @@
 #include <stdarg.h>
 
 #include <bootloader.h>
+#include <debug.h>
 #include <error.h>
 #include <serial.h>
 

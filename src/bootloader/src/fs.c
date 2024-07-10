@@ -10,6 +10,7 @@
 #include <efilib.h>
 
 #include <bootloader.h>
+#include <debug.h>
 #include <error.h>
 #include <fs.h>
 

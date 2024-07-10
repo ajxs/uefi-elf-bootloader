@@ -68,15 +68,15 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle,
  * @param[in]   root_file_system The root file system FILE entity to load the
  *              kernel binary from.
  * @param[in]   kernel_image_filename The kernel filename on the boot partition.
- * @param[out]  kernel_entry_point The entry point memory address for
- *              the kernel.
+ * @param[out]  kernel_entry_point The virtual memory address of the kernel's
+ *   entry point.
  * @return The program status.
  * @retval EFI_SUCCESS    If the function executed successfully.
  * @retval other          Any other value is an EFI error code.
  */
 EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
 	IN CHAR16* const kernel_image_filename,
-	OUT EFI_PHYSICAL_ADDRESS* kernel_entry_point);
+	OUT EFI_VIRTUAL_ADDRESS* kernel_entry_point);
 
 /**
  * @brief Pauses the program while waiting for input.
@@ -88,26 +88,6 @@ EFI_STATUS load_kernel_image(IN EFI_FILE* const root_file_system,
  * @retval other          Any other value is an EFI error code.
  */
 EFI_STATUS wait_for_input(EFI_INPUT_KEY* key);
-
-/**
- * @brief Prints to the default debug output.
- * Prints a null terminated format string to a the default debug output device.
- * If the serial service has been initialised, this will be used by default,
- * otherwise the default GNU-EFI `Print` function will be used.
- * Accepts all standard format specifiers as used in `string.h` functions.
- * @param[in] fmt    The format line to print.
- * @param[in] ...    Arguments for the format line.
- * @return The program status.
- * @retval EFI_SUCCESS            If the function executed successfully.
- * @retval EFI_INVALID_PARAMETER  If the supplied protocol is not properly
- *                                loaded or the supplied string is empty.
- * @retval EFI_BAD_BUFFER_SIZE    If the string is over the maximum length or
- *                                not properly null terminated.
- * @retval other                  Any other value is an EFI error code.
- * @warn If the string is not null terminated, this will result in an error.
- */
-EFI_STATUS debug_print_line(IN CHAR16* fmt,
-	...);
 
 /**
  * @brief The global graphics service entity.

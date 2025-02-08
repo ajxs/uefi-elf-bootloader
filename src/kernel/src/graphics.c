@@ -26,3 +26,21 @@ void draw_rect(uint32_t* framebuffer_pointer,
 		}
 	}
 }
+
+void draw_pixel(uint32_t* framebuffer_pointer,
+	const uint32_t pixels_per_scaline,
+	const uint16_t _x,
+	const uint16_t _y,
+	const uint32_t color)
+{
+	/** Pointer to the current pixel in the buffer. */
+	uint32_t* at = framebuffer_pointer + _x + (_y * pixels_per_scaline);
+	*at = color;
+}
+
+uint32_t convert_rgb_to_32bit_colour(const uint8_t r,
+	const uint8_t g,
+	const uint8_t b)
+{
+	return (r << 16) | (g << 8) | b;
+}

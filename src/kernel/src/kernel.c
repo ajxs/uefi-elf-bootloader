@@ -13,10 +13,8 @@
 #include <graphics.h>
 #include <uart.h>
 
-/**
- * Whether to draw a test pattern to video output.
- */
-#define DRAW_TEST_SCREEN 0
+/** Whether to draw a test pattern to video output. */
+#define DRAW_TEST_SCREEN 1
 
 #define TEST_SCREEN_COL_NUM             4
 #define TEST_SCREEN_ROW_NUM             3
@@ -26,6 +24,8 @@
 
 /**
  * @brief Draws a test screen to the framebuffer.
+ * Paints the XOR test texture to the screen.
+ * Refer to: https://lodev.org/cgtutor/xortexture.html
  * @param[in] boot_info The boot information passed to the kernel. This contains
  * a pointer to the framebuffer, and the associated video mode information
  * needed to draw the test screen.
@@ -44,25 +44,24 @@ void kernel_main(Boot_Info* boot_info);
  */
 static void draw_test_screen(Boot_Info* boot_info)
 {
-	const uint16_t tile_width = boot_info->video_mode_info.horizontal_resolution /
-		TEST_SCREEN_COL_NUM;
-	const uint16_t tile_height = boot_info->video_mode_info.vertical_resolution /
-		TEST_SCREEN_ROW_NUM;
+	uint8_t c = 0;
+	uint32_t colour = 0;
+	uint16_t x = 0;
+	uint16_t y = 0;
 
-	uint8_t p = 0;
-	for(p = 0; p < TEST_SCREEN_TOTAL_TILES; p++) {
-		uint8_t _x = p % TEST_SCREEN_COL_NUM;
-		uint8_t _y = p / TEST_SCREEN_COL_NUM;
+	for(y = 0; y < boot_info->video_mode_info.vertical_resolution; y++) {
+		for(x = 0; x < boot_info->video_mode_info.horizontal_resolution; x++) {
+			c = (x ^ y) % 256;
+			colour = convert_rgb_to_32bit_colour(255 - (c % 128), c, c % 128);
 
-		uint32_t color = TEST_SCREEN_PRIMARY_COLOUR;
-		if(((_y % 2) + _x) % 2) {
-			color = TEST_SCREEN_SECONDARY_COLOUR;
+			draw_pixel(
+				boot_info->video_mode_info.framebuffer_pointer,
+				boot_info->video_mode_info.pixels_per_scaline,
+				x,
+				y,
+				colour
+			);
 		}
-
-		draw_rect(boot_info->video_mode_info.framebuffer_pointer,
-			boot_info->video_mode_info.pixels_per_scaline,
-			tile_width * _x, tile_height * _y,
-			tile_width, tile_height, color);
 	}
 }
 

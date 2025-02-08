@@ -13,7 +13,7 @@
 #include <efilib.h>
 
 /** The maximum string length able to be printed to the serial. */
-#define MAX_SERIAL_OUT_STRING_LENGTH 256
+#define MAX_SERIAL_OUT_STRING_LENGTH 512
 
 /**
  * @brief The serial service.

@@ -81,7 +81,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	/** Function pointer to the kernel entry point. */
 	void (*kernel_entry)(Kernel_Boot_Info* boot_info);
 	/** Boot info struct, passed to the kernel. */
-	Kernel_Boot_Info boot_info;
+	Kernel_Boot_Info boot_info = {0};
 	/** Input key type used to capture user input. */
 	EFI_INPUT_KEY input_key;
 
@@ -167,6 +167,15 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 			return status;
 		}
 
+		boot_info.video_mode_info.framebuffer_pointer =
+			(VOID*)graphics_output_protocol->Mode->FrameBufferBase;
+		boot_info.video_mode_info.horizontal_resolution =
+			graphics_output_protocol->Mode->Info->HorizontalResolution;
+		boot_info.video_mode_info.vertical_resolution =
+			graphics_output_protocol->Mode->Info->VerticalResolution;
+		boot_info.video_mode_info.pixels_per_scaline =
+			graphics_output_protocol->Mode->Info->PixelsPerScanLine;
+
 		#if DRAW_TEST_SCREEN != 0
 			draw_test_screen(graphics_output_protocol);
 		#endif
@@ -202,15 +211,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		debug_print_line(L"Debug: Set Kernel Entry Point to: '0x%llx'\n",
 			kernel_entry_point);
 	#endif
-
-	boot_info.video_mode_info.framebuffer_pointer =
-		(VOID*)graphics_output_protocol->Mode->FrameBufferBase;
-	boot_info.video_mode_info.horizontal_resolution =
-		graphics_output_protocol->Mode->Info->HorizontalResolution;
-	boot_info.video_mode_info.vertical_resolution =
-		graphics_output_protocol->Mode->Info->VerticalResolution;
-	boot_info.video_mode_info.pixels_per_scaline =
-		graphics_output_protocol->Mode->Info->PixelsPerScanLine;
 
 	#ifdef DEBUG
 		debug_print_line(L"Debug: Closing Graphics Output Service handles\n");

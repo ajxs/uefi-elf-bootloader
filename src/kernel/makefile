@@ -15,7 +15,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 ARCH := x86_64
-CC   := ${ARCH}-elf-gcc
+CC   := ${ARCH}-unknown-elf-gcc
 
 SRC_DIR := src
 

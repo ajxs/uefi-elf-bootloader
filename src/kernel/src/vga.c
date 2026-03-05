@@ -53,7 +53,7 @@ void vga_initialize(void)
 	vga_row = 0;
 	vga_column = 0;
 	vga_color = create_vga_color_entry(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-	vga_buffer = (uint16_t*)0xC03FF000;
+	vga_buffer = (uint16_t*)0xB8000;
 
 	for(size_t y = 0; y < VGA_HEIGHT; y++) {
 		for(size_t x = 0; x < VGA_WIDTH; x++) {

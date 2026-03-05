@@ -225,17 +225,27 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 		debug_print_line(L"Debug: Getting memory map and exiting boot services\n");
 	#endif
 
-	// Get the memory map prior to exiting the boot service.
-	status = get_memory_map((VOID**)&memory_map, &memory_map_size,
-		&memory_map_key, &descriptor_size, &descriptor_version);
-	if(EFI_ERROR(status)) {
-		// Error has already been printed.
-		return status;
-	}
+	#ifdef DEBUG
+		// Fetch the memory map for debug printing, then free the buffer before
+		// re-fetching immediately prior to ExitBootServices.
+		status = get_memory_map((VOID**)&memory_map, &memory_map_size,
+			&memory_map_key, &descriptor_size, &descriptor_version);
+		if(EFI_ERROR(status)) {
+			// Error has already been printed.
+			return status;
+		}
 
-	debug_print_memory_map(memory_map, memory_map_size, descriptor_size);
+		debug_print_memory_map(memory_map, memory_map_size, descriptor_size);
 
-	// Get the memory map prior to exiting the boot service.
+		status = uefi_call_wrapper(gBS->FreePool, 1, memory_map);
+		if(check_for_fatal_error(status, L"Error freeing memory map buffer")) {
+			return status;
+		}
+	#endif
+
+	// Re-fetch the memory map immediately before ExitBootServices to ensure
+	// the map key is current. No allocations or frees may occur between this
+	// call and ExitBootServices.
 	status = get_memory_map((VOID**)&memory_map, &memory_map_size,
 		&memory_map_key, &descriptor_size, &descriptor_version);
 	if(EFI_ERROR(status)) {

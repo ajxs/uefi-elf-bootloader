@@ -41,7 +41,7 @@ LDFLAGS :=          \
 LIBS := -lgcc
 
 
-AS_SOURCES :=
+AS_SOURCES := ${SRC_DIR}/entry.S
 
 C_SOURCES  :=              \
 	${SRC_DIR}/graphics.c    \

@@ -14,7 +14,7 @@ KERNEL_PHYS_START = 1M;
 /** The size of the kernel stack. */
 KERNEL_STACK_SIZE = 0x4000;
 
-ENTRY (kernel_main)
+ENTRY (kernel_entry)
 
 SECTIONS
 {

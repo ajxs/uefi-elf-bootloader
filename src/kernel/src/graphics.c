@@ -5,7 +5,7 @@
  * draw_rect
  */
 void draw_rect(uint32_t* framebuffer_pointer,
-	const uint32_t pixels_per_scaline,
+	const uint32_t pixels_per_scanline,
 	const uint16_t _x,
 	const uint16_t _y,
 	const uint16_t width,
@@ -20,7 +20,7 @@ void draw_rect(uint32_t* framebuffer_pointer,
 	for(row = 0; row < height; row++) {
 		for(col = 0; col < width; col++) {
 			at = framebuffer_pointer + _x + col;
-			at += ((_y + row) * pixels_per_scaline);
+			at += ((_y + row) * pixels_per_scanline);
 
 			*at = color;
 		}
@@ -28,13 +28,13 @@ void draw_rect(uint32_t* framebuffer_pointer,
 }
 
 void draw_pixel(uint32_t* framebuffer_pointer,
-	const uint32_t pixels_per_scaline,
+	const uint32_t pixels_per_scanline,
 	const uint16_t _x,
 	const uint16_t _y,
 	const uint32_t color)
 {
 	/** Pointer to the current pixel in the buffer. */
-	uint32_t* at = framebuffer_pointer + _x + (_y * pixels_per_scaline);
+	uint32_t* at = framebuffer_pointer + _x + (_y * pixels_per_scanline);
 	*at = color;
 }
 

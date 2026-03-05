@@ -15,7 +15,7 @@
  * @brief Draws a rectangle onto the framebuffer.
  * Draws a rectangle onto the video frame buffer.
  * @param[in] framebuffer_pointer A pointer to the video framebuffer.
- * @param[in] pixels_per_scaline The number of pixels per scanline. Also known as 'pitch'.
+ * @param[in] pixels_per_scanline The number of pixels per scanline. Also known as 'pitch'.
  * In some more exotic video modes this may be different to the visible screen width.
  * @param[in] _x The x coordinate to draw the rect to.
  * @param[in] _y The y coordinate to draw the rect to.
@@ -24,7 +24,7 @@
  * @param[in] color The color to draw.
  */
 void draw_rect(uint32_t* framebuffer_pointer,
-	const uint32_t pixels_per_scaline,
+	const uint32_t pixels_per_scanline,
 	const uint16_t _x,
 	const uint16_t _y,
 	const uint16_t width,
@@ -34,14 +34,14 @@ void draw_rect(uint32_t* framebuffer_pointer,
 /**
  * @brief Paints a pixel of a certain colour onto the framebuffer.
  * @param[in] framebuffer_pointer A pointer to the video framebuffer.
- * @param[in] pixels_per_scaline The number of pixels per scanline. Also known as 'pitch'.
+ * @param[in] pixels_per_scanline The number of pixels per scanline. Also known as 'pitch'.
  * In some more exotic video modes this may be different to the visible screen width.
  * @param[in] _x The x coordinate to pixel.
  * @param[in] _y The y coordinate to pixel.
  * @param[in] color The color to draw.
  */
 void draw_pixel(uint32_t* framebuffer_pointer,
-	const uint32_t pixels_per_scaline,
+	const uint32_t pixels_per_scanline,
 	const uint16_t _x,
 	const uint16_t _y,
 	const uint32_t color);

@@ -173,7 +173,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 			graphics_output_protocol->Mode->Info->HorizontalResolution;
 		boot_info.video_mode_info.vertical_resolution =
 			graphics_output_protocol->Mode->Info->VerticalResolution;
-		boot_info.video_mode_info.pixels_per_scaline =
+		boot_info.video_mode_info.pixels_per_scanline =
 			graphics_output_protocol->Mode->Info->PixelsPerScanLine;
 
 		#if DRAW_TEST_SCREEN != 0

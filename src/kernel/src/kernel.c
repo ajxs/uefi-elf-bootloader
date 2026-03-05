@@ -56,7 +56,7 @@ static void draw_test_screen(Boot_Info* boot_info)
 
 			draw_pixel(
 				boot_info->video_mode_info.framebuffer_pointer,
-				boot_info->video_mode_info.pixels_per_scaline,
+				boot_info->video_mode_info.pixels_per_scanline,
 				x,
 				y,
 				colour

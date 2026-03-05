@@ -221,7 +221,7 @@ EFI_STATUS read_elf_file(IN EFI_FILE* const kernel_img_file,
 	} else if(file_class == ELF_FILE_CLASS_64) {
 		buffer_read_size = sizeof(Elf64_Ehdr);
 	} else {
-		debug_print_line(L"Error: Invalid file class\n", status);
+		debug_print_line(L"Error: Invalid file class\n");
 		return EFI_INVALID_PARAMETER;
 	}
 

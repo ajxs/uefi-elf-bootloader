@@ -22,7 +22,7 @@ void uart_initialize(void);
  * This function checks whether the UART receive buffer is empty.
  * @return A boolean indicating whether the recieve buffer is empty.
  */
-bool uart_is_recieve_buffer_empty(void);
+bool uart_is_receive_buffer_empty(void);
 
 /**
  * @brief UART getchar.

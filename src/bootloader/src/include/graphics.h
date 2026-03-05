@@ -15,7 +15,7 @@
 
 /**
  * @brief Graphics output service.
- * Holds variables necesssary for using the UEFI graphics output service.
+ * Holds variables necessary for using the UEFI graphics output service.
  */
 typedef struct s_uefi_graphics_service {
 	EFI_HANDLE* handle_buffer;

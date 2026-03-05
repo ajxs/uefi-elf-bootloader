@@ -33,9 +33,9 @@ void uart_initialize(void)
 
 
 /**
- * uart_is_recieve_buffer_empty
+ * uart_is_receive_buffer_empty
  */
-bool uart_is_recieve_buffer_empty(void)
+bool uart_is_receive_buffer_empty(void)
 {
 	return inb(UART_PORT_COM1 + 5) & 1;
 }
@@ -46,7 +46,7 @@ bool uart_is_recieve_buffer_empty(void)
  */
 char uart_getchar(void)
 {
-	while(!uart_is_recieve_buffer_empty());
+	while(!uart_is_receive_buffer_empty());
 
 	return inb(UART_PORT_COM1);
 }

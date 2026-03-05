@@ -190,7 +190,7 @@ EFI_STATUS load_program_segments(IN EFI_FILE* const kernel_img_file,
 					return status;
 				}
 
-				// Increment the number of segments lodaed.
+				// Increment the number of segments loaded.
 				n_segments_loaded++;
 			}
 		}

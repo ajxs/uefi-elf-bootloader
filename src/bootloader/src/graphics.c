@@ -24,7 +24,7 @@
 /**
  * @brief Finds a video mode.
  * Finds a particular video mode by its width, height and pixel format.
- * Tests all video modes copatible with the provided protocol, populating the
+ * Tests all video modes compatible with the provided protocol, populating the
  * `video_mode` variable on success.
  * @param[in]     protocol The protocol to find the video mode in.
  * @param[in]     target_width The target width to search for.

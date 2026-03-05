@@ -67,7 +67,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	 */
 	EFI_FILE* root_file_system;
 	/** The kernel entry point address. */
-	EFI_PHYSICAL_ADDRESS* kernel_entry_point = 0;
+	EFI_PHYSICAL_ADDRESS kernel_entry_point = 0;
 	/** The EFI memory map descriptor. */
 	EFI_MEMORY_DESCRIPTOR* memory_map = NULL;
 	/** The memory map key. */
@@ -191,7 +191,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	#endif
 
 	status = load_kernel_image(root_file_system, KERNEL_EXECUTABLE_PATH,
-		kernel_entry_point);
+		&kernel_entry_point);
 	if(EFI_ERROR(status)) {
 		// In the case that loading the kernel image failed, the error message will
 		// have already been printed.
@@ -200,7 +200,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 	#ifdef DEBUG
 		debug_print_line(L"Debug: Set Kernel Entry Point to: '0x%llx'\n",
-			*kernel_entry_point);
+			kernel_entry_point);
 	#endif
 
 	boot_info.video_mode_info.framebuffer_pointer =
@@ -255,7 +255,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 	boot_info.memory_map_descriptor_size = descriptor_size;
 
 	// Cast pointer to kernel entry.
-	kernel_entry = (void (*)(Kernel_Boot_Info*))*kernel_entry_point;
+	kernel_entry = (void (*)(Kernel_Boot_Info*))kernel_entry_point;
 	// Jump to kernel entry.
 	kernel_entry(&boot_info);
 

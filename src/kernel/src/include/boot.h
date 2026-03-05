@@ -17,6 +17,7 @@
  */
 typedef struct s_memory_region_desc {
 	uint32_t type;
+	uint32_t pad;
 	uintptr_t physical_start;
 	uintptr_t virtual_start;
 	uint64_t count;
